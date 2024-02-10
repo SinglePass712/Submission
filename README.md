@@ -8,8 +8,4 @@ To single out any specific test, you can comment out the check for t.Short withi
 
 The number of iterations each test runs for was reset to 1 so that the tests run faster, however, this is tunable with numIter to get an average over more repetitions.
 
-
-The bulk of our code is within ./pir/pir_single_pass.go, ./psetggm/permute.cpp, ./psetggm/xor/cpp
-./psetggm/answer.cpp, ./pir/dynamic_db.go
-
-
+Please edit ./psetggm/tests/Makefile and ./psetggm/pset_ggm_c.go with the correct path for openssl lib and include if that is an error.
