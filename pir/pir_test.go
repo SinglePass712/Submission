@@ -43,7 +43,7 @@ func TestSinglePassUpdatableFixedSize(t *testing.T) {
 			start := time.Now()
 			elapsed := 0.0
 			spSetSize := GetSetSizeByCliSizeDynamicSinglePass(dbSize,elemSize,checklistCliSizes[k][i])
-			fmt.Printf("set size: %d\n",spSetSize)
+			//fmt.Printf("set size: %d\n",spSetSize)
 			client := NewPIRReaderSetSize(RandSource(), Server(&ddb), Server(&ddb),spSetSize)
 			err := client.Init(SinglePass)
 
@@ -67,7 +67,8 @@ func TestSinglePassUpdatableFixedSize(t *testing.T) {
 			start = time.Now()
 			err = client.Update()
 			elapsed = time.Since(start).Seconds()
-			fmt.Printf("update time: %f \n", elapsed)
+			//
+			//fmt.Printf("update time: %f \n", elapsed)
 			assert.NilError(t, err)
 
 			readCtr := 0.0
@@ -230,7 +231,7 @@ func TestFineGrainSinglePass(t *testing.T) {
 	fmt.Printf("sp query time: %s \n", elapsed)
 	assert.NilError(t, err)
 	assert.DeepEqual(t, val, db.Row(1000000))
-	fmt.Printf("sp set size: %d \n",spSetSize)
+	//fmt.Printf("sp set size: %d \n",spSetSize)
 	fmt.Printf("sp cli size %d \n", client.ClientSize())
 
 	_, chkOnBW := getChecklistBandwidth(dbSize,elemSize)
@@ -273,7 +274,7 @@ func TestFineGrainSinglePass(t *testing.T) {
 	fmt.Printf("dyn sp query time: %s \n", elapsed)
 	assert.NilError(t, err)
 	assert.DeepEqual(t, val, ddb.Row(1000000))
-	fmt.Printf("dyn sp set size: %d \n",dynamicSpSetSize)
+	//fmt.Printf("dyn sp set size: %d \n",dynamicSpSetSize)
 	fmt.Printf("dyn sp cli size %d \n", client.ClientSize())
 	_,spOnBW2 := getSinglePassBandwidth(dbSize,elemSize,dynamicSpSetSize)
 	fmt.Printf(" online bandwidth dynamic sp: %d \n",spOnBW2)
