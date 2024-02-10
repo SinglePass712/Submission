@@ -192,9 +192,9 @@ func TestUpdatabaleSinglePass(t *testing.T) {
 
 
 func TestFineGrainSinglePass(t *testing.T) {
-	// if testing.Short() {
- //  		t.Skip("skipping testing in short mode")
-	// }
+	if testing.Short() {
+  		t.Skip("skipping testing in short mode")
+	}
 	elemSize := 32
 	dbSize := 1730*1730;
 	db := MakeDB(dbSize, elemSize)
@@ -464,73 +464,6 @@ func TestChecklistAndSinglePassSameSetSize(t *testing.T) {
 	
 	for k,elemSize := range elemSizes {
 
-	// 	for i,v := range dbSizes {
-	// 		dbSize := v*v//1<<i
-	// 		db := MakeDB(dbSize, elemSize)
-	// 		iterationArr := make([]float64,7)
-
-	// 		iterationArr[0] = float64(elemSize)
-	// 		iterationArr[1] = float64(dbSize)
-	// 		start := time.Now()
-	// 		elapsed := 0.0
-	// 		client := NewPIRReader(RandSource(), Server(db), Server(db))
-		
-			
-	// 		for j:= 0; j <numIter; j++ {
-	// 			start = time.Now()
-	// 			err := client.Init(Punc)
-	// 			elapsed += time.Since(start).Seconds()
-	// 			assert.NilError(t, err)
-	// 		}
-	// 		elapsedAvg := elapsed/float64(numIter)
-
-	// 		iterationArr[2] = elapsedAvg
-
-	// 		readCtr := 0.0
-	// 		elapsed = 0.0
-	// 		for j := 0; j < 202000; j+= 101 {
-	// 			if j < dbSize {
-	// 				start = time.Now()
-	// 				val, err := client.Read(j)
-	// 				elapsed += time.Since(start).Seconds()
-	// 				readCtr +=1
-	// 				assert.NilError(t, err)
-	// 				assert.DeepEqual(t, val, db.Row(j))
-	// 			}
-	// 		}
-	// 		for j := 0; j < 202000; j+= 101 {
-	// 			if j+1 < dbSize {
-	// 				start = time.Now()
-	// 				val,err:=client.Read(j+1)
-	// 				elapsed += time.Since(start).Seconds()
-	// 				readCtr += 1
-	// 				assert.NilError(t, err)
-	// 				assert.DeepEqual(t, val, db.Row(j+1))
-	// 			}
-	// 		}
-	// 		for j := 0; j < 202000; j+= 101 {
-	// 			if j < dbSize {
-	// 				start = time.Now()
-	// 				val, err := client.Read(j)
-	// 				elapsed += time.Since(start).Seconds()
-	// 				readCtr +=1
-	// 				assert.NilError(t, err)
-	// 				assert.DeepEqual(t, val, db.Row(j))
-	// 			}
-	// 		}
-	// 		amTime := elapsed/readCtr
-	// 		iterationArr[3] = amTime
-
-
-	// 		iterationArr[4] = float64(client.ClientSize())
-	// 		offBW, onBW := getChecklistBandwidth(dbSize,elemSize)
-	// 		iterationArr[5] = float64(offBW)
-	// 		iterationArr[6] = float64(onBW)
-
-
-	// 		checklistArr[k*len(dbSizes) + i] = iterationArr
-	// 	}
-
 		for i,v := range dbSizes {
 			dbSize := v*v//1<<i
 			db := MakeDB(dbSize, elemSize)
@@ -601,7 +534,109 @@ func TestChecklistAndSinglePassSameSetSize(t *testing.T) {
 	
 	//fmt.Printf("checklist benchmarks same set size (fixed sqrt(n): \n")
 	//fmt.Println(checklistArr)
-	fmt.Printf("SinglePass benchmarks same set size (fixed sqrt(n): \n")
+	fmt.Printf("SinglePass benchmarks same set size (fixed sqrt(n), not updatable): \n")
+	fmt.Println(singlePassArr)
+
+
+}
+func TestUpdatableSinglePassSameSetSize(t *testing.T) {
+	// if testing.Short() {
+ //  		t.Skip("skipping testing in short mode")
+	// }
+	elemSizes := []int{512,1024,2048}//,3072}
+	dbSizes := []int{150, 250, 500, 1000,1400}//, 2000}//,2000}
+	singlePassArr := make([][]float64,len(dbSizes)*len(elemSizes))
+	//checklistArr := make([][]float64,len(dbSizes)*len(elemSizes))
+	//cliSizeArr := make([][]int,len(dbSizes))
+	numIter := 1
+	
+	for k,elemSize := range elemSizes {
+
+		for i,v := range dbSizes {
+			dbSize := v*v//1<<i
+			ddb := MakeDynamicDB(dbSize,elemSize)
+			iterationArr := make([]float64,7)
+
+			iterationArr[0] = float64(elemSize)
+			iterationArr[1] = float64(dbSize)
+			start := time.Now()
+			elapsed := 0.0
+			//spSetSize := GetSetSizeByCliSizeStaticSinglePass(dbSize,elemSize,checklistCliSizes[i])
+			client := NewPIRReader(RandSource(), Server(&ddb), Server(&ddb))
+
+
+			for j:= 0; j <numIter; j++ {
+				start = time.Now()
+				err := client.Init(SinglePass)
+				elapsed += time.Since(start).Seconds()
+				assert.NilError(t, err)
+			}
+			elapsedAvg := elapsed/float64(numIter)
+
+			iterationArr[2] = elapsedAvg
+
+			numUpdates := 500
+			updateIdxs, updateRows := MakeUpdateRows(numUpdates, dbSize,elemSize)
+			err:=ddb.EditRows(updateIdxs,updateRows)
+			assert.NilError(t, err)
+
+			start = time.Now()
+			err = client.Update()
+			elapsed = time.Since(start).Seconds()
+			fmt.Printf("update time for elem size: %d, dbSize of %d: %f \n", elemSize, dbSize, elapsed)
+			assert.NilError(t, err)
+		
+			
+
+			readCtr := 0.0
+			elapsed = 0.0
+			for j := 0; j < 202000; j+= 101 {
+				if j < dbSize {
+					start = time.Now()
+					val, err := client.Read(j)
+					elapsed += time.Since(start).Seconds()
+					readCtr +=1
+					assert.NilError(t, err)
+					assert.DeepEqual(t, val, ddb.Row(j))
+				}
+			}
+			for j := 0; j < 202000; j+= 101 {
+				if j+1 < dbSize {
+					start = time.Now()
+					val,err:=client.Read(j+1)
+					elapsed += time.Since(start).Seconds()
+					readCtr += 1
+					assert.NilError(t, err)
+					assert.DeepEqual(t, val, ddb.Row(j+1))
+				}
+			}
+			for j := 0; j < 202000; j+= 101 {
+				if j < dbSize {
+					start = time.Now()
+					val, err := client.Read(j)
+					elapsed += time.Since(start).Seconds()
+					readCtr +=1
+					assert.NilError(t, err)
+					assert.DeepEqual(t, val, ddb.Row(j))
+				}
+			}
+			amTime := elapsed/readCtr
+			iterationArr[3] = amTime
+
+			iterationArr[4] = float64(client.ClientSize())
+			offBW, onBW := getSinglePassBandwidth(dbSize,elemSize,0)
+			iterationArr[5] = float64(offBW)
+			iterationArr[6] = float64(onBW)
+
+			singlePassArr[k*len(dbSizes) + i] = iterationArr
+		}
+
+
+	}
+	
+	//fmt.Printf("checklist benchmarks same set size (fixed sqrt(n): \n")
+	//fmt.Println(checklistArr)
+	fmt.Printf("Updatable SinglePass benchmarks same set size (fixed sqrt(n): \n")
 	fmt.Println(singlePassArr)
 
 

@@ -348,7 +348,7 @@ func (c *puncClient) NumCovered() int {
 // Sample a random element of the set that is not equal to `idx`.
 func (c *puncClient) randomMemberExcept(set PuncturableSet, idx int) int {
 	for {
-		// TODO: If this is slow, use a more clever way to
+		// If this is slow, use a more clever way to
 		// pick the random element.
 		//
 		// Use rejection sampling.

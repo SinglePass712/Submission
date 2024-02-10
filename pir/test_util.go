@@ -99,7 +99,7 @@ func GetSetSizeByCliSizeDynamicSinglePass(numRows,rowLen,cliSize int) (setSize i
 }
 
 func getChecklistBandwidth(numRows, rowLen int) (offlineBandwidth, onlineBandwidth int) {
-	return int(math.Sqrt(float64(numRows)))*rowLen*int(math.Log(2)*16), 2*(rowLen + int(8 * math.Log2(float64(numRows)))) //128 bits = 16 bytes, 8 = 16/2 bc we actually only need log(N)/2
+	return int(math.Sqrt(float64(numRows)))*rowLen*int(math.Log(2)*128), 2*(rowLen + int(8 * math.Log2(float64(numRows)))) //128 bits = 16 bytes, 8 = 16/2 bc we actually only need log(N)/2
 }
 func getSinglePassBandwidth(numRows, rowLen,setSize int) (offlineBandwidth, onlineBandwidth int) {
 	realSetSize := setSize

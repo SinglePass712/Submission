@@ -59,7 +59,7 @@ func NewPIRReader(source *rand.Rand, serverL, serverR Server) PIRReader {
 	return &pirReader{servers: [2]Server{serverL, serverR}, randSource: source, setSize:0}
 }
 func NewPIRReaderSetSize(source *rand.Rand, serverL, serverR Server, setSize int) PIRReader {
-return &pirReader{servers: [2]Server{serverL, serverR}, randSource: source,setSize:setSize}
+	return &pirReader{servers: [2]Server{serverL, serverR}, randSource: source,setSize:setSize}
 }
 func (c *pirReader) Init(pirType PirType) error {
 	req := NewHintReq(c.randSource, pirType,c.setSize)
@@ -124,3 +124,4 @@ func (c *pirReader) ClientSize() int {
 	_,val := c.impl.StateSize()
 	return val
 }
+

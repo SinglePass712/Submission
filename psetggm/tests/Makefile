@@ -13,7 +13,7 @@ SIMD_FLAGS.aarch64 := -march=armv8-a+fp+simd+crypto+crc
 
 
 uname_p := $(strip $(shell uname -p))
-FLAGS := $(CCFLAGS) $(SIMD_FLAGS.${uname_p}) 
+FLAGS := $(CCFLAGS) $(SIMD_FLAGS.${uname_p}) -L/opt/homebrew/lib -lssl -lcrypto -I/opt/homebrew/include
 
 all: $(LIB) $(TESTS)
 

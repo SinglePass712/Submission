@@ -1,9 +1,9 @@
 package psetggm
 
 /*
-#cgo amd64 CXXFLAGS: -msse2 -msse -march=native -maes -Ofast -std=c++11
-#cgo arm64 CXXFLAGS: -march=armv8-a+fp+simd+crypto+crc -Ofast -std=c++11
-#cgo LDFLAGS: -static-libstdc++
+#cgo amd64 CXXFLAGS: -msse2 -msse -march=native -maes -Ofast -std=c++11 -I/opt/homebrew/include
+#cgo arm64 CXXFLAGS: -march=armv8-a+fp+simd+crypto+crc -Ofast -std=c++11 -I/opt/homebrew/include 
+#cgo LDFLAGS: -static-libstdc++ -L/opt/homebrew/lib -lcrypto
 #include "pset_ggm.h"
 #include "xor.h"
 #include "answer.h"

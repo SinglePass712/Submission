@@ -43,7 +43,6 @@ func (ddb *DynamicDB) Row(i int) Row {
 	return ddb.staticDb.Row(i)
 }
 
-//TODO: finish out static db ideas (can be deamortized)
 
 //Have DynamicPIRreader class that inits with dynamicdb rather than static!
 // (to benchmark against benchmark_initial and benchmark_trace for checklist)

@@ -80,13 +80,6 @@ func (req *SinglePassHintReq) Process(db StaticDB) (HintResp, error) {
 	hintsBuf := make([]byte, nHints*db.RowLen)
 
 
-
-	//TODO: need to also pass in permutation array so i can point to it without having to rerun this
-	//(to not have to sample them twice. In practice the client could also do it, concurrently to the server
-	// or before the server)
-
-	//TODO: CHECK: should I be passing pointers here or whole items
-
 	permutations := make([]uint32, db.NumRows)
 	inverse_permutations := make([]uint32, db.NumRows)
 	//squash PRGKEY
@@ -302,8 +295,7 @@ func (c *SinglePassClient) reconstruct(resp []*SinglePassQueryResp, index_0 int,
 
 
 
-	//TODO: between resp[0] and resp[1], double check which is from offline server and which is from online server
-	//for now, assuming resp[0] is from offline server and resp[1] is from online
+	
 	out := make(Row, elemSize)
 	
 	xorResp0 := make(Row, elemSize)
@@ -358,8 +350,7 @@ func (c *SinglePassClient) reconstruct(resp []*SinglePassQueryResp, index_0 int,
 
 // Sample a random element within range.
 func (c *SinglePassClient) randomIdx(rangeMax int) uint32{
-	// TODO: If this is slow, use a more clever way to
-	// pick the random element.
+	
 
 	return uint32(c.randSource.Intn(rangeMax))
 
@@ -370,9 +361,8 @@ func (c *SinglePassClient) randomIdx(rangeMax int) uint32{
 // Sample a random element of the set that is not equal to `idx`.
 func (c *SinglePassClient) randomIdxExcept(rangeMax int, idx int) int {
 	for {
-		// TODO: If this is slow, use a more clever way to
-		// pick the random element.
-		//
+		
+		//Fix if slow.
 		// Use rejection sampling.
 		val := c.randSource.Intn(rangeMax)
 		if val != idx {
@@ -450,7 +440,7 @@ func (c *SinglePassClient) updateState(updateResp *SinglePassUpdateResp) (error)
 			newPerm := make([]uint32, c.nHints)
 			newInvPerm := make([]uint32, c.nHints)
 
-			//TODO: use real randomness from rand instead of 0
+			//okay to send 0 since C code uses urand seed anyway
 			psetggm.SinglePermutation(0,newPerm,newInvPerm, uint32(c.nHints))
 
 			//append newPerm, invPerm to idxToSetIdx and setIdxToIdx
